@@ -1,14 +1,12 @@
 services:
-  # Backend Web Service - Native (no Docker)
+  # Backend Web Service - Docker
   - type: web
     name: factracku-backend
-    env: node
-    repo: https://github.com/PrathviSahu/FacetrackU.git
-    rootDir: ./backend
+    env: docker
+    dockerContext: .
+    dockerfilePath: backend/Dockerfile
     plan: free
     region: oregon
-    buildCommand: "mvn clean package -DskipTests"
-    startCommand: "java -jar target/major-project-1.0.0.jar --server.port=${PORT:-8080}"
     healthCheckPath: /api/actuator/health
     envVars:
       - key: SPRING_DATASOURCE_URL
@@ -20,4 +18,18 @@ services:
       - key: JWT_SECRET
         generateValue: true
       - key: ALLOWED_ORIGINS
-        value: https://your-domain.vercel.app
+        value: https://factracku-frontend.onrender.com # Placeholder, update after frontend is live
+      - key: SERVER_PORT
+        value: 8080
+
+  # Frontend Web Service - Docker
+  - type: web
+    name: factracku-frontend
+    env: docker
+    dockerContext: .
+    dockerfilePath: frontend/Dockerfile
+    plan: free
+    region: oregon
+    envVars:
+      - key: REACT_APP_API_URL
+        value: https://factracku-backend.onrender.com
