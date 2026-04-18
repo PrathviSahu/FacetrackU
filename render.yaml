@@ -1,0 +1,22 @@
+services:
+  # Backend Web Service
+  - type: web
+    name: factracku-backend
+    env: docker
+    repo: https://github.com/PrathviSahu/FacetrackU.git
+    rootDir: ./
+    dockerfilePath: ./Dockerfile
+    plan: free
+    region: oregon
+    healthCheckPath: /api/actuator/health
+    envVars:
+      - key: SPRING_DATASOURCE_URL
+        value: jdbc:postgresql://aws-1-ap-south-1.pooler.supabase.com:6543/postgres?prepareThreshold=0
+      - key: SPRING_DATASOURCE_USERNAME
+        value: postgres.mvgqvrlohtzklbtquumw
+      - key: SPRING_DATASOURCE_PASSWORD
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: ALLOWED_ORIGINS
+        value: https://your-domain.vercel.app
