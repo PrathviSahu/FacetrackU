@@ -1,13 +1,14 @@
 services:
-  # Backend Web Service
+  # Backend Web Service - Native (no Docker)
   - type: web
     name: factracku-backend
-    env: docker
+    env: node
     repo: https://github.com/PrathviSahu/FacetrackU.git
-    rootDir: ./
-    dockerfilePath: ./Dockerfile
+    rootDir: ./backend
     plan: free
     region: oregon
+    buildCommand: "mvn clean package -DskipTests"
+    startCommand: "java -jar target/major-project-1.0.0.jar --server.port=${PORT:-8080}"
     healthCheckPath: /api/actuator/health
     envVars:
       - key: SPRING_DATASOURCE_URL
