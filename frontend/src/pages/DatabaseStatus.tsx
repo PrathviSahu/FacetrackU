@@ -1,13 +1,14 @@
-import { apiUrl } from '../config/api';
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Database, Users, CheckCircle, XCircle } from 'lucide-react';
-import axios from 'axios';
+import { fetchJson, HttpTimeoutError } from '../utils/http';
+
+type ConnectionState = 'checking' | 'connected' | 'waking_up' | 'disconnected';
 
 const DatabaseStatus: React.FC = () => {
   const [enrolledCount, setEnrolledCount] = useState(0);
   const [totalStudents, setTotalStudents] = useState(0);
-  const [isConnected, setIsConnected] = useState(false);
+  const [connectionState, setConnectionState] = useState<ConnectionState>('checking');
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -17,16 +18,32 @@ const DatabaseStatus: React.FC = () => {
   const loadDatabaseStatus = async () => {
     try {
       setIsLoading(true);
-      const response = await axios.get(apiUrl("/students/enrolled-faces"));
-      setEnrolledCount(response.data.data?.length || 0);
-      
-      const allStudents = await axios.get(apiUrl("/students"));
-      setTotalStudents(allStudents.data.data?.totalElements || 0);
-      
-      setIsConnected(true);
+      setConnectionState('checking');
+
+      const health = await fetchJson<any>('/health');
+      const databaseConnected = health?.database === 'Connected' || health?.database === 'connected';
+
+      const [enrolledFaces, allStudents] = await Promise.all([
+        fetchJson<any>('/students/enrolled-faces').catch((error) => {
+          if (error instanceof HttpTimeoutError) {
+            throw error;
+          }
+          return { data: [] };
+        }),
+        fetchJson<any>('/students').catch((error) => {
+          if (error instanceof HttpTimeoutError) {
+            throw error;
+          }
+          return { data: { totalElements: 0 } };
+        }),
+      ]);
+
+      setEnrolledCount(enrolledFaces?.data?.length || 0);
+      setTotalStudents(allStudents?.data?.totalElements || 0);
+      setConnectionState(databaseConnected ? 'connected' : 'disconnected');
     } catch (error) {
       console.error('Failed to load database status:', error);
-      setIsConnected(false);
+      setConnectionState(error instanceof HttpTimeoutError ? 'waking_up' : 'disconnected');
     } finally {
       setIsLoading(false);
     }
@@ -58,9 +75,13 @@ const DatabaseStatus: React.FC = () => {
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Database Status</p>
                 <p className="text-2xl font-bold text-gray-900 dark:text-white mt-2">
-                  {isConnected ? (
+                  {connectionState === 'connected' ? (
                     <span className="text-green-600 flex items-center gap-2">
                       <CheckCircle className="w-6 h-6" /> Connected
+                    </span>
+                  ) : connectionState === 'waking_up' ? (
+                    <span className="text-amber-600 flex items-center gap-2">
+                      <Database className="w-6 h-6" /> Waking up
                     </span>
                   ) : (
                     <span className="text-red-600 flex items-center gap-2">
@@ -163,6 +184,7 @@ const DatabaseStatus: React.FC = () => {
             </h4>
             <ul className="text-sm text-blue-700 dark:text-blue-300 space-y-1">
               <li>• <strong>Database Status:</strong> Should show "✅ Connected"</li>
+              <li>• <strong>Backend Sleep:</strong> On free hosting, it may briefly show "Waking up" after inactivity</li>
               <li>• <strong>Enrolled Faces Count:</strong> Should increase after enrollment</li>
               <li>• <strong>Face Data:</strong> Should show student name, ID, and descriptor points</li>
               <li>• <strong>Timestamp:</strong> Should show recent enrollment date/time</li>
@@ -174,7 +196,8 @@ const DatabaseStatus: React.FC = () => {
               ⚠️ Troubleshooting:
             </h4>
             <ul className="text-sm text-yellow-700 dark:text-yellow-300 space-y-1">
-              <li>• If "❌ Disconnected": Check if backend server is running</li>
+              <li>• If "⏳ Waking up": Wait 30-60 seconds and refresh once</li>
+              <li>• If "❌ Disconnected": The backend health check truly failed</li>
               <li>• If "No Data": Try enrolling a face first</li>
               <li>• If API tests fail: Verify backend endpoints are working</li>
             </ul>
