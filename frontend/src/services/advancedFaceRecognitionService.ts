@@ -195,18 +195,34 @@ class AdvancedFaceRecognitionService {
     }
 
     const { minConfidence = 0.5, inputSize = 512, scoreThreshold = 0.5 } = options;
+    const effectiveInputSize = [128, 160, 224, 320, 416, 512].includes(inputSize)
+      ? inputSize
+      : 416;
 
     try {
-      // Use SSD MobileNet for better accuracy
-      const detection = await faceapi
-        .detectSingleFace(input, new faceapi.SsdMobilenetv1Options({
-          minConfidence,
-          maxResults: 1
-        }))
-        .withFaceLandmarks()
-        .withFaceDescriptor();
+      // Prefer Tiny Face Detector for live camera work; fall back to SSD if needed.
+      const detection =
+        (await faceapi
+          .detectSingleFace(
+            input,
+            new faceapi.TinyFaceDetectorOptions({
+              inputSize: effectiveInputSize,
+              scoreThreshold: scoreThreshold ?? minConfidence,
+            })
+          )
+          .withFaceLandmarks()
+          .withFaceDescriptor()) ||
+        (await faceapi
+          .detectSingleFace(input, new faceapi.SsdMobilenetv1Options({ minConfidence }))
+          .withFaceLandmarks()
+          .withFaceDescriptor());
 
       if (!detection) return null;
+
+      // Extra confidence guard for low-quality detections
+      if (detection.detection.score < minConfidence) {
+        return null;
+      }
 
       const box = detection.detection.box;
       const confidence = detection.detection.score;
@@ -529,7 +545,7 @@ class AdvancedFaceRecognitionService {
   // Real-time face recognition for attendance
   async recognizeFace(
     input: HTMLVideoElement | HTMLImageElement | HTMLCanvasElement,
-    confidenceThreshold: number = 0.7  // Production-ready threshold
+    confidenceThreshold: number = 0.5
   ): Promise<{
     studentId: string;
     studentName: string;
@@ -540,7 +556,7 @@ class AdvancedFaceRecognitionService {
     console.log('🔍 Starting face recognition...');
     
     const face = await this.detectFace(input, {
-      minConfidence: 0.7,  // Production-ready detection confidence
+      minConfidence: 0.55,
       inputSize: 512       // Higher resolution for better accuracy
     });
     
@@ -555,10 +571,10 @@ class AdvancedFaceRecognitionService {
       descriptorLength: face.descriptor.length
     });
     
-    if (face.quality.score < 0.7) {  // High quality requirement for production
-      console.log('❌ Face quality too low:', face.quality.score, '(need >= 0.7)');
-      return null;
-    }
+      if (face.quality.score < 0.6) {
+      console.log('❌ Face quality too low:', face.quality.score, '(need >= 0.6)');
+        return null;
+      }
 
     try {
       // Get enrolled faces from backend
@@ -603,7 +619,7 @@ class AdvancedFaceRecognitionService {
           // Production-ready confidence calculation
           // Standard formula: confidence = 1 - (distance / maxDistance)
           // Tightened mapping to reduce optimistic scores
-          const maxDistance = 0.5;
+          const maxDistance = 1.0;
           const confidence = Math.max(0, Math.min(1, 1 - (distance / maxDistance)));
           
           console.log(`🔍 Comparing with ${student.firstName} ${student.lastName}:`, {
@@ -616,7 +632,7 @@ class AdvancedFaceRecognitionService {
           // Production-ready matching criteria (temporarily relaxed for debugging):
           // - Distance must be < 0.60 (was 0.45, then 0.50)
           // - Confidence must meet the threshold
-          if (distance < 0.60 && confidence >= confidenceThreshold && 
+          if (distance < 0.65 && confidence >= confidenceThreshold && 
               (!bestMatch || confidence > bestMatch.confidence)) {
             bestMatch = {
               studentId: student.id.toString(),
@@ -631,7 +647,7 @@ class AdvancedFaceRecognitionService {
             });
           } else {
             const reasons = [];
-            if (distance >= 0.60) reasons.push(`distance too high (${distance.toFixed(4)} >= 0.60)`);
+            if (distance >= 0.65) reasons.push(`distance too high (${distance.toFixed(4)} >= 0.65)`);
             if (confidence < confidenceThreshold) reasons.push(`confidence too low (${(confidence * 100).toFixed(1)}% < ${(confidenceThreshold * 100).toFixed(1)}%)`);
             
             console.log(`❌ Rejected: ${student.firstName} ${student.lastName}`, {

@@ -28,6 +28,7 @@ import LeaveManagement from './pages/LeaveManagement';
 import AttendanceAnalytics from './pages/AttendanceAnalytics';
 import Layout from './components/Layout';
 import LoadingSpinner from './components/LoadingSpinner';
+import { FEATURES } from './config/features';
 
 // Protected Route Component
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -215,91 +216,103 @@ const AppRoutes: React.FC = () => {
             }
           />
 
-          <Route
-            path="predictions"
-            element={
-              <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.3 }}
-              >
-                <PredictionsDashboard />
-              </motion.div>
-            }
-          />
+          {FEATURES.predictions && (
+            <Route
+              path="predictions"
+              element={
+                <motion.div
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <PredictionsDashboard />
+                </motion.div>
+              }
+            />
+          )}
 
-          <Route
-            path="email-notifications"
-            element={
-              <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.3 }}
-              >
-                <EmailNotifications />
-              </motion.div>
-            }
-          />
+          {FEATURES.emailNotifications && (
+            <Route
+              path="email-notifications"
+              element={
+                <motion.div
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <EmailNotifications />
+                </motion.div>
+              }
+            />
+          )}
 
 
 
-          <Route
-            path="attendance-certificate"
-            element={
-              <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.3 }}
-              >
-                <AttendanceCertificate />
-              </motion.div>
-            }
-          />
+          {FEATURES.certificates && (
+            <Route
+              path="attendance-certificate"
+              element={
+                <motion.div
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <AttendanceCertificate />
+                </motion.div>
+              }
+            />
+          )}
 
-          <Route
-            path="sms-notifications"
-            element={
-              <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.3 }}
-              >
-                <SMSNotifications />
-              </motion.div>
-            }
-          />
+          {FEATURES.smsNotifications && (
+            <Route
+              path="sms-notifications"
+              element={
+                <motion.div
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <SMSNotifications />
+                </motion.div>
+              }
+            />
+          )}
 
-          <Route
-            path="leave-management"
-            element={
-              <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.3 }}
-              >
-                <LeaveManagement />
-              </motion.div>
-            }
-          />
+          {FEATURES.leaveManagement && (
+            <Route
+              path="leave-management"
+              element={
+                <motion.div
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <LeaveManagement />
+                </motion.div>
+              }
+            />
+          )}
 
-          <Route
-            path="attendance-analytics"
-            element={
-              <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.3 }}
-              >
-                <AttendanceAnalytics />
-              </motion.div>
-            }
-          />
+          {FEATURES.attendanceAnalytics && (
+            <Route
+              path="attendance-analytics"
+              element={
+                <motion.div
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <AttendanceAnalytics />
+                </motion.div>
+              }
+            />
+          )}
 
         </Route>
 

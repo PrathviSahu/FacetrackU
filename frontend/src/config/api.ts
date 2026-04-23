@@ -11,7 +11,12 @@ export const apiUrl = (path: string = ''): string => {
 
 export const API_CONFIG = {
   BASE_URL: API_BASE_URL,
-  TIMEOUT: 10000,
+  // Render free tier can take ~50s to wake from sleep. Default higher to avoid false "disconnected" states.
+  TIMEOUT: (() => {
+    const raw = process.env.REACT_APP_API_TIMEOUT_MS;
+    const parsed = raw ? parseInt(raw, 10) : NaN;
+    return Number.isFinite(parsed) && parsed > 0 ? parsed : 60000;
+  })(),
   RETRY_ATTEMPTS: 3,
 };
 

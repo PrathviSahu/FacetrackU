@@ -57,6 +57,7 @@ class FaceRecognitionService {
       console.log('🚀 Loading Face Recognition Models...');
       
       await Promise.all([
+        faceapi.nets.tinyFaceDetector.loadFromUri(this.modelPath),
         faceapi.nets.ssdMobilenetv1.loadFromUri(this.modelPath),
         faceapi.nets.faceLandmark68Net.loadFromUri(this.modelPath),
         faceapi.nets.faceRecognitionNet.loadFromUri(this.modelPath),
@@ -88,11 +89,21 @@ class FaceRecognitionService {
     }
 
     try {
-      // Detect face with landmarks and descriptor
-      const detection = await faceapi
-        .detectSingleFace(input, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.5 }))
-        .withFaceLandmarks()
-        .withFaceDescriptor();
+      const detection =
+        (await faceapi
+          .detectSingleFace(
+            input,
+            new faceapi.TinyFaceDetectorOptions({
+              inputSize: 416,
+              scoreThreshold: 0.45,
+            })
+          )
+          .withFaceLandmarks()
+          .withFaceDescriptor()) ||
+        (await faceapi
+          .detectSingleFace(input, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.45 }))
+          .withFaceLandmarks()
+          .withFaceDescriptor());
 
       if (!detection) {
         return null;
@@ -137,11 +148,11 @@ class FaceRecognitionService {
 
     // Check detection confidence (ultra-strict for enrollment)
     const confidence = det.score;
-    if (confidence < 0.90) {
+    if (confidence < 0.80) {
       return {
         score: confidence,
         isGood: false,
-        reason: `Confidence ${(confidence * 100).toFixed(0)}% (need 90%+) - improve lighting`,
+        reason: `Confidence ${(confidence * 100).toFixed(0)}% (need 80%+) - improve lighting`,
       };
     }
 
@@ -215,10 +226,10 @@ class FaceRecognitionService {
     
     return {
       score: qualityScore,
-      isGood: qualityScore >= 0.90,
-      reason: qualityScore >= 0.92 ? '⭐ Perfect quality!' : 
-              qualityScore >= 0.90 ? '✓ Excellent quality' : 
-              qualityScore >= 0.85 ? 'Good, but need 90%+' :
+      isGood: qualityScore >= 0.80,
+      reason: qualityScore >= 0.90 ? '⭐ Perfect quality!' : 
+              qualityScore >= 0.80 ? '✓ Excellent quality' : 
+              qualityScore >= 0.75 ? 'Good, but could be steadier' :
               'Quality too low',
     };
   }
@@ -351,7 +362,7 @@ class FaceRecognitionService {
    */
   async recognizeStudent(
     descriptor: Float32Array,
-    threshold: number = 0.6
+    threshold: number = 0.55
   ): Promise<RecognitionResult | null> {
     try {
       // Get enrolled students from backend
@@ -387,7 +398,7 @@ class FaceRecognitionService {
           if (distance < threshold && distance < bestDistance) {
             bestDistance = distance;
             // More generous confidence calculation (0.8 instead of 0.6)
-            const confidence = Math.max(0, Math.min(1, 1 - distance / 0.8));
+            const confidence = Math.max(0, Math.min(1, 1 - distance / 0.85));
             
             bestMatch = {
               studentId: student.id.toString(),

@@ -31,6 +31,7 @@ import { toast } from 'react-hot-toast';
 
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
+import { FEATURES } from '../config/features';
 
 interface MenuItem {
   id: string;
@@ -69,63 +70,62 @@ const menuItems: MenuItem[] = [
     path: '/database-status',
     description: 'Verify enrollment data',
   },
-  {
+  ...(FEATURES.timetable ? [{
     id: 'timetable',
     label: 'Timetable',
     icon: <Calendar className="w-5 h-5" />,
     path: '/timetable',
     description: 'Manage class schedules',
-  },
-  {
+  }] : []),
+  ...(FEATURES.reports ? [{
     id: 'reports',
     label: 'Reports',
     icon: <FileText className="w-5 h-5" />,
     path: '/reports',
     description: 'Generate and view reports',
-  },
-  {
+  }] : []),
+  ...(FEATURES.predictions ? [{
     id: 'predictions',
     label: 'AI Predictions',
     icon: <Brain className="w-5 h-5" />,
     path: '/predictions',
     description: 'ML-powered insights',
-  },
-  {
+  }] : []),
+  ...(FEATURES.emailNotifications ? [{
     id: 'email-notifications',
     label: 'Email Alerts',
     icon: <Mail className="w-5 h-5" />,
     path: '/email-notifications',
     description: 'Send automated emails',
-  },
-
-  {
+  }] : []),
+  ...(FEATURES.certificates ? [{
     id: 'attendance-certificate',
     label: 'Certificates',
     icon: <Award className="w-5 h-5" />,
     path: '/attendance-certificate',
     description: 'Generate attendance certificates',
-  },
-  {
+  }] : []),
+  ...(FEATURES.smsNotifications ? [{
     id: 'sms-notifications',
     label: 'SMS Alerts',
     icon: <MessageSquare className="w-5 h-5" />,
     path: '/sms-notifications',
     description: 'SMS & WhatsApp notifications',
-  },
-  {
+  }] : []),
+  ...(FEATURES.leaveManagement ? [{
     id: 'leave-management',
     label: 'Leave Management',
     icon: <FileCheck className="w-5 h-5" />,
     path: '/leave-management',
     description: 'Manage student leave requests',
-  },
-  {
+  }] : []),
+  ...(FEATURES.attendanceAnalytics ? [{
     id: 'attendance-analytics',
     label: 'Analytics',
     icon: <BarChart3 className="w-5 h-5" />,
     path: '/attendance-analytics',
     description: 'Advanced attendance analytics',
-  },
+  }] : []),
 ];
 
 const Layout: React.FC = () => {
