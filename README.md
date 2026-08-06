@@ -29,8 +29,8 @@ This project is divided into specialized frontend and backend repositories for d
 
 | Layer | Component | GitHub Repository |
 |---|---|---|
-| **Frontend** | React 18 + TypeScript Web App | [🔗 FaceTrackU-Frontend](https://github.com/PrathviSahu/FaceTrackU-Frontend) |
-| **Backend** | Spring Boot 3 + Supabase API | [🔗 FaceTrackU-Backend](https://github.com/PrathviSahu/FaceTrackU-Backend) |
+| **Frontend** | React 18 + TypeScript Web App | [🔗 FacetrackUFrontend](https://github.com/PrathviSahu/FacetrackUFrontend) |
+| **Backend** | Spring Boot 3 + Supabase API | [🔗 FacetrackUBackend](https://github.com/PrathviSahu/FacetrackUBackend) |
 
 ---
 
