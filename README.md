@@ -2,7 +2,7 @@
 
 > **AI-Powered Automated Face Recognition Attendance & Analytics Platform**
 
-[![Live Demo](https://img.shields.io/badge/Live_Demo-Vercel-success?style=for-the-badge&logo=vercel)](https://facetrack-u-frontend.vercel.app/dashboard)
+[![Live Demo](https://img.shields.io/badge/Live_Demo-Vercel-success?style=for-the-badge&logo=vercel)](https://facetrack-u-frontend.vercel.app)
 [![Spring Boot](https://img.shields.io/badge/Spring--Boot-3.x-brightgreen?logo=springboot)](https://spring.io/projects/spring-boot)
 [![React](https://img.shields.io/badge/React-18-blue?logo=react)](https://reactjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue?logo=typescript)](https://www.typescriptlang.org/)
@@ -13,7 +13,7 @@
 
 ## 🌟 Executive Summary
 
-🌐 **Live Web Application**: **[https://facetrack-u-frontend.vercel.app/dashboard](https://facetrack-u-frontend.vercel.app/dashboard)**
+🌐 **Live Web Application**: **[https://facetrack-u-frontend.vercel.app](https://facetrack-u-frontend.vercel.app)**
 
 **FaceTrackU** is a commercial-grade, full-stack AI attendance platform built for educational institutions. It replaces manual roll calls with **real-time computer-vision facial recognition**, reducing attendance verification time by **95%** while eliminating proxy attendance.
 
